@@ -91,8 +91,13 @@ class DesktopPet(QWidget):
         # 读取目录下dialog文件
         with open("./dialog.txt", "r",encoding='UTF-8') as f:
             text = f.read()
-            # 以\n 即换行符为分隔符，分割放进dialog中
-            self.dialog = text.split("\n")
+            # 以; 即换行符为分隔符，分割放进dialog中
+            self.dialog = text.split(";")
+        #读取触摸文本文件
+        self.touch = []
+        with open("./touch.txt", "r",encoding='UTF-8') as f:
+            text = f.read()
+            self.touch = text.split(";")
  
     # 宠物正常待机动作
     def petNormalAction(self):
@@ -100,30 +105,28 @@ class DesktopPet(QWidget):
         # 定时器设置
         self.timer = QTimer()
         # 宠物状态设置为动作
-        self.timer.timeout.connect(self.changeAction)
-        # 时间到了自动执行
+        self.condition = 3
         self.timer.timeout.connect(self.randomAct)
         # 动作时间切换设置
-        self.timer.start(10000)#30秒
+        self.timer.start(30000)#30秒
         # 每隔一段时间切换对话
         self.talkTimer = QTimer()
         self.talkTimer.timeout.connect(self.talk)
-        self.talkTimer.start(3000)#3秒
+        self.talkTimer.start(50000)#50秒
         # 对话状态设置为常态
         self.talk_condition = 0
         # 宠物对话框
         self.talk()
-    
- 
 
     # 随机动作切换
     def randomAct(self):        
         # condition记录宠物状态，宠物状态为0时，代表正常待机
-        if not self.condition:
+        if self.condition == 0:
             self.movie = QMovie("./special/normal.gif")
             self.movie.setScaledSize(QSize(200, 200))
             self.image.setMovie(self.movie)
             self.movie.start()
+            self.condition = 3
         elif self.condition == 1:
             # 读取特殊状态图片路径
             self.movie = QMovie("./special/touch.gif")
@@ -155,43 +158,56 @@ class DesktopPet(QWidget):
             self.movie.start()
             self.gifTimer = QTimer()
             self.condition = 0
-            if self.gif_number == 0:                
+            if self.gif_number == 0:
                 self.gifTimer.start(9000)   
             elif self.gif_number == 1:
                 self.gifTimer.start(7000)
             self.gifTimer.timeout.connect(self.randomAct)
             self.gifTimer.timeout.connect(self.gifTimer.stop)
-    def changeAction(self):
-        self.condition = 3
+
     # 宠物对话框行为处理
     def talk(self):
-        if not self.talk_condition:
+        if self.talk_condition == 0:
             # talk_condition为0则选取加载在dialog中的语句
             self.talkLabel.setText(random.choice(self.dialog))
             # 设置样式
             self.talkLabel.setStyleSheet(
                 "font: bold;"
-                "font:25pt '楷体';"
-                "color:black;"
-                "background-color: white"
+                "font:25px '楷体';"
+                "color:#00BFFF;"
+                "background:transparent"
                 "url(:/)"
             )
             # 根据内容自适应大小
             self.talkLabel.adjustSize()
-#        else:
-#            # talk_condition为1显示为别点我，这里同样可以通过if-else-if来拓展对应的行为
-#            self.talkLabel.setText("")
-#            self.talkLabel.setStyleSheet(
-#                "font: bold;"
-#                "font:25pt '楷体';"
-#                "color:white;"
-#                "background-color: white"
-#                "url(:/)"
-#            )
-#            self.talkLabel.adjustSize()
-#            # 设置为正常状态
-#            self.talk_condition = 0
- 
+        elif self.talk_condition == 1:
+            #talk_condition为1选取触摸语句
+            self.talkLabel.setText(random.choice(self.touch))
+            self.talkLabel.setStyleSheet(
+                "font: bold;"
+                "font:25px '楷体';"
+                "color:#00BFFF;"
+                "background:transparent"
+                "url(:/)"
+            )
+            self.talkLabel.adjustSize()
+            # 设置为正常状态
+            self.touchTalkTimer = QTimer()
+            self.touchTalkTimer.start(2000)#2秒
+            self.talk_condition = 3
+            self.touchTalkTimer.timeout.connect(self.talk)
+            self.touchTalkTimer.timeout.connect(self.touchTalkTimer.stop)
+        elif self.talk_condition == 3:
+            self.talkLabel.setText("")
+            self.talkLabel.setStyleSheet(
+                "font: bold;"
+                "font:20pt '楷体';"
+                "color:#00BFFF;"
+                "background:transparent"
+                "url(:/)"
+            )
+            self.talkLabel.adjustSize()
+            self.talk_condition = 0
     # 退出操作，关闭程序
     def quit(self):
         self.close()
@@ -215,6 +231,8 @@ class DesktopPet(QWidget):
         if event.button() == Qt.LeftButton:
             self.start_pos = event.globalPos()
             self.is_follow_mouse = True
+            self.timer.stop()
+            self.talkTimer.stop()
         # globalPos() 事件触发点相对于桌面的位置
         # pos() 程序相对于桌面左上角的位置，实际是窗口的左上角坐标
         self.mouse_drag_pos = event.globalPos() - self.pos()
@@ -242,10 +260,12 @@ class DesktopPet(QWidget):
         self.is_follow_mouse = False
         # 鼠标图形设置为箭头
         self.setCursor(QCursor(Qt.ArrowCursor))
+        self.timer.start()#重启计时
+        self.talkTimer.start()
         try:
             if self.start_pos == event.globalPos():
                 self.condition = 1
-#            self.talk_condition = 1
+                self.talk_condition = 1
                 self.talk()
                 self.randomAct()
                 
