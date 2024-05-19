@@ -11,7 +11,7 @@ Azur-Lane-DesktopPet/
 │
 ├── LICENSE          # 项目的开源许可证文件
 ├── README.md        # 本项目介绍文件
-├── touch.txt        #
+├── touch.txt        # 角色触摸对话文本文件
 ├── dialog.txt       # 角色互动对话文本文件
 └── xingzuo.py       # 主程序
 ```
