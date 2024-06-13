@@ -15,7 +15,7 @@ Azur-Lane-DesktopPet/
 ├── dialog.txt       # 角色互动对话文本文件
 └── xingzuo.py       # 主程序
 ```
-# 使用
+## 使用
 安装PyQt5
 ```Python
 pip install PyQt5
@@ -24,7 +24,7 @@ pip install PyQt5
 ```Python
 python xingzuo.py
 ```
-# 拓展
+## 拓展
 可通过替换文件并修改部分数据将其换成自己喜欢的角色
 ```
 第151行
@@ -37,12 +37,12 @@ elif self.gif_number == 1:
     self.gifTimer.start(7000)
 ```
 其中需要修改随机数的范围和计时器时长，使替换后的gif文件能在播放完一次后结束
-# 后续目标
+## 后续目标
 搓一个控制面板，调整大小、动作模式等
 可在屏幕上左右滑行
 播放语音
 
-# 许可证
+## 许可证
 本项目遵循[MIT License](LICENSE)，意在鼓励开源精神，促进技术交流与学习。
 
 # 参考
